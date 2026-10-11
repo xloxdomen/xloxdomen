@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xloxdomen.com</title>
+    
+    <!-- ПОДКЛЮЧАЕМ ИКОНКУ САЙТА -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-image: url('bg.png'); 
+            background-repeat: repeat; 
+            background-position: 0 0;
+            animation: moveBackground 25s linear infinite alternate;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            padding: 40px;
+            overflow: hidden; 
+        }
+
+        @keyframes moveBackground {
+            0% { background-position: 0 0; }
+            100% { background-position: 400px 400px; }
+        }
+
+        .audio-control-wrap {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            z-index: 20;
+        }
+
+        .music-toggle-btn {
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .music-btn-img {
+            max-width: 120px; 
+            height: auto;
+            display: block;
+            border-radius: 6px;
+            transition: none; 
+            position: relative;
+            top: 0;
+            left: 0;
+        }
+
+        .music-toggle-btn:active .music-btn-img {
+            top: 3px;
+            left: 3px;
+        }
+
+        .content-wrap {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .welcome-text {
+            color: #ffffff;
+            font-size: 2.8rem;
+            font-weight: bold;
+            margin: 0 0 25px 0;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6); 
+        }
+
+        .social-buttons-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px; 
+            align-items: center;
+        }
+
+        .custom-button {
+            display: inline-block;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            border-radius: 10px;
+            transition: none; 
+            position: relative;
+            top: 0;
+            left: 0;
+        }
+
+        .social-btn:hover .btn-img { top: -2px; left: -2px; }
+        .social-btn:active .btn-img { top: 4px; left: 4px; }
+
+        .bottom-wrap {
+            z-index: 10;
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            transition: transform 1s ease-in-out; 
+        }
+
+        .hide-down {
+            transform: translateY(300px);
+        }
+
+        .shaking {
+            animation: sharpShake 0.1s infinite steps(1);
+        }
+
+        @keyframes sharpShake {
+            0%   { transform: translate(0, 0); }
+            20%  { transform: translate(-4px, 2px); }
+            40%  { transform: translate(3px, -2px); }
+            60%  { transform: translate(-3px, -1px); }
+            80%  { transform: translate(4px, 1px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .head-popup {
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .head-img {
+            max-width: 120px;
+            height: auto;
+            filter: drop-shadow(4px 4px 0px rgba(0,0,0,1)); 
+        }
+    </style>
+</head>
+<body>
+    <div class="audio-control-wrap">
+        <div class="music-toggle-btn" id="music-btn-trigger">
+            <img src="music-mute.png" alt="Включить музыку" class="music-btn-img" id="music-btn-image">
+        </div>
+    </div>
+
+    <div class="content-wrap">
+        <h1 class="welcome-text">hi, it's mine website!</h1>
+        
+        <div class="social-buttons-row">
+            <!-- YouTube -->
+            <a href="https://youtube.com" target="_blank" class="custom-button social-btn" id="yt-button">
+                <img src="youtube-btn.png" alt="Мой YouTube!" class="btn-img" id="yt-image">
+            </a>
+
+            <!-- Twitter -->
+            <a href="https://x.com" target="_blank" class="custom-button social-btn" id="tw-button">
+                <img src="twitter-btn.png" alt="Мой Twitter!" class="btn-img" id="tw-image">
+            </a>
+        </div>
+    </div>
+
+    <div class="bottom-wrap" id="arg-bottom-block">
+        <div class="head-popup" id="head-trigger-block">
+            <img src="head-sprite.png" alt="???" class="head-img">
+        </div>
+
+        <div class="custom-button" id="lock-button">
+            <img src="lock-btn.png" alt="Заперто" class="btn-img" id="lock-image">
+        </div>
+    </div>
+
+    <script>
+        // --- ОБНОВИЛИ НА MP3 ДЛЯ ХОСТИНГА ---
+        const bgMusic = new Audio('music-bg.mp3'); 
+        bgMusic.loop = true; 
+        bgMusic.volume = 0.4; 
+
+        const musicTrigger = document.getElementById('music-btn-trigger');
+        const musicImg = document.getElementById('music-btn-image');
+        let isMusicPlaying = false;
+
+        musicTrigger.addEventListener('click', () => {
+            if (!isMusicPlaying) {
+                bgMusic.play()
+                    .then(() => {
+                        isMusicPlaying = true;
+                        musicImg.src = 'music-unmute.png'; 
+                    })
+                    .catch(err => {
+                        console.error("Ошибка аудио:", err);
+                        // Защита на случай локального отсутствия расширения
+                        bgMusic.src = 'music-bg';
+                        bgMusic.play().then(() => {
+                            isMusicPlaying = true;
+                            musicImg.src = 'music-unmute.png';
+                        });
+                    });
+            } else {
+                bgMusic.pause();
+                isMusicPlaying = false;
+                musicImg.src = 'music-mute.png'; 
+            }
+        });
+
+        // Логика YouTube
+        const ytButton = document.getElementById('yt-button');
+        const ytImg = document.getElementById('yt-image');
+        const ytSound = new Audio('youtube-click.wav');
+
+        ytButton.addEventListener('mousedown', () => {
+            ytImg.src = 'youtube-btn-press.png'; 
+            ytSound.currentTime = 0;        
+            ytSound.play().catch(e => {
+                ytSound.src = 'youtube-click';
+                ytSound.play();
+            });                 
+        });
+        ytButton.addEventListener('mouseup', () => { ytImg.src = 'youtube-btn.png'; });
+        ytButton.addEventListener('mouseleave', () => { ytImg.src = 'youtube-btn.png'; });
+
+        // Логика X (Twitter)
+        const twButton = document.getElementById('tw-button');
+        const twImg = document.getElementById('tw-image');
+        const twSound = new Audio('twitter-click.wav');
+
+        twButton.addEventListener('mousedown', () => {
+            twImg.src = 'twitter-btn-press.png'; 
+            twSound.currentTime = 0;        
+            twSound.play().catch(e => {
+                twSound.src = 'twitter-click';
+                twSound.play();
+            });                 
+        });
+        twButton.addEventListener('mouseup', () => { twImg.src = 'twitter-btn.png'; });
+        twButton.addEventListener('mouseleave', () => { twImg.src = 'twitter-btn.png'; });
+
+        // Логика ARG Замка
+        const lockButton = document.getElementById('lock-button');
+        const lockImg = document.getElementById('lock-image');
+        const headBlock = document.getElementById('head-trigger-block');
+        const bottomWrap = document.getElementById('arg-bottom-block');
+        
+        const lockSound = new Audio('locked-snd.wav');
+        const talkSound = new Audio('talk-snd.wav'); 
+
+        let lockTimer;
+        let eventTriggered = false;
+
+        lockButton.addEventListener('mousedown', () => {
+            if (eventTriggered) return;
+            lockImg.classList.add('shaking'); 
+            lockSound.currentTime = 0;        
+            lockSound.play().catch(e => {
+                lockSound.src = 'locked-snd';
+                lockSound.play();
+            });                 
+
+            lockTimer = setTimeout(() => {
+                eventTriggered = true;
+                lockImg.classList.remove('shaking'); 
+                
+                headBlock.style.display = 'flex';   
+                lockImg.src = 'talk-url.png'; 
+                
+                talkSound.currentTime = 0;
+                talkSound.play().catch(e => {
+                    talkSound.src = 'talk-snd';
+                    talkSound.play();
+                });
+
+                localStorage.setItem('lock_triggered', 'true');
+
+                setTimeout(() => {
+                    bottomWrap.classList.add('hide-down');
+                }, 2500);
+
+            }, 3000);
+        });
+
+        function resetLock() {
+            if (eventTriggered) return;
+            clearTimeout(lockTimer);
+            lockImg.classList.remove('shaking');
+        }
+
+        lockButton.addEventListener('mouseup', resetLock);
+        lockButton.addEventListener('mouseleave', resetLock);
+    </script>
+</body>
+</html>
